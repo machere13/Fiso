@@ -14,6 +14,12 @@ python --v
 pip install -r requirements.txt
 ```
 
+И
+
+```bash
+pip install
+```
+
 ```bash
 python -m app.main
 ```
