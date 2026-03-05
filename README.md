@@ -11,14 +11,10 @@ python --v
 Внешних зависимостей пока нет, но на всякий пропиши
 
 ```bash
-pip install -r requirements.txt
-```
-
-И
-
-```bash
 pip install
 ```
+
+Чтобы запустить приложение
 
 ```bash
 python -m app.main
