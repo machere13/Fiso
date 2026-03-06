@@ -6,7 +6,7 @@ from app.core.models import OrganizePlan, OrganizePlanItem
 
 class FileOrganizerService(FileOrganizer):
     _CATEGORY_EXTENSIONS: Dict[str, Set[str]] = {
-        "Images": {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"},
+        "Images": {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg"},
         "Videos": {".mp4", ".mov", ".avi", ".mkv", ".wmv"},
         "Audios": {".mp3", ".wav", ".flac", ".aac", ".ogg"},
     }
