@@ -1,16 +1,10 @@
 from pathlib import Path
-from typing import Dict, Set
 
+from app.core.file_categories import CATEGORY_EXTENSIONS
 from app.core.interfaces import FileOrganizer, RulesRepository
 from app.core.models import OrganizePlan, OrganizePlanItem
 
 class FileOrganizerService(FileOrganizer):
-    _CATEGORY_EXTENSIONS: Dict[str, Set[str]] = {
-        "Images": {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg"},
-        "Videos": {".mp4", ".mov", ".avi", ".mkv", ".wmv"},
-        "Audios": {".mp3", ".wav", ".flac", ".aac", ".ogg"},
-    }
-
     def __init__(self, rules_repository: RulesRepository) -> None:
         self._rules_repository = rules_repository
 
@@ -40,7 +34,7 @@ class FileOrganizerService(FileOrganizer):
 
     def _detect_category(self, suffix: str) -> str | None:
         ext = suffix.lower()
-        for category, exts in self._CATEGORY_EXTENSIONS.items():
+        for category, exts in CATEGORY_EXTENSIONS.items():
             if ext in exts:
                 return category
         return None
