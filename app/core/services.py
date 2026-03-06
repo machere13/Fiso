@@ -3,7 +3,8 @@ from typing import Mapping
 
 from app.core.interfaces import FileOrganizer, RulesRepository
 from app.core.models import OrganizePlan, OrganizePlanItem
-from app.core.rules_presets import DEFAULT_PRESET_NAME, RULE_PRESETS
+from app.core.preset_registry import get_all_presets
+from app.core.rules_presets import DEFAULT_PRESET_NAME
 
 class FileOrganizerService(FileOrganizer):
     def __init__(self, rules_repository: RulesRepository, preset_name: str = DEFAULT_PRESET_NAME) -> None:
@@ -17,10 +18,10 @@ class FileOrganizerService(FileOrganizer):
 
     @classmethod
     def available_presets(cls) -> list[str]:
-        return list[str](RULE_PRESETS.keys())
+        return list(get_all_presets().keys())
 
     def set_preset(self, name: str) -> None:
-        if name not in RULE_PRESETS:
+        if name not in get_all_presets():
             raise ValueError(f"Неизвестная конфигурация правил: {name}")
         self._preset_name = name
 
@@ -31,7 +32,7 @@ class FileOrganizerService(FileOrganizer):
         if not root.exists() or not root.is_dir():
             raise ValueError("Указанный путь должен быть существующей папкой")
 
-        extensions_by_category = RULE_PRESETS[self._preset_name]
+        extensions_by_category = get_all_presets()[self._preset_name]
         items: list[OrganizePlanItem] = []
 
         if self._include_subfolders:
