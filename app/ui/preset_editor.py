@@ -4,14 +4,17 @@ from tkinter.ttk import Frame
 
 from app.core.rules_presets import ExtensionsMap
 
+
 def _normalize_ext(ext: str) -> str:
     ext = ext.strip().lower()
     if ext and not ext.startswith("."):
         ext = "." + ext
     return ext
 
+
 def _parse_extensions(text: str) -> set[str]:
     return {_normalize_ext(x) for x in text.replace(",", " ").split() if x.strip()}
+
 
 def edit_preset(
     parent: tk.Misc,
@@ -19,7 +22,7 @@ def edit_preset(
     initial_mapping: ExtensionsMap | None = None,
 ) -> tuple[str, ExtensionsMap] | None:
     initial_mapping = initial_mapping or {}
-    result: list = []
+    result: list[tuple[str, ExtensionsMap]] = []
 
     dialog = tk.Toplevel(parent)
     dialog.title("Редактор конфигурации" if initial_name else "Новая конфигурация")
@@ -58,13 +61,15 @@ def edit_preset(
         e_var = tk.StringVar(value=exts)
         ttk.Entry(row_f, textvariable=f_var, width=18).grid(row=0, column=0)
         ttk.Entry(row_f, textvariable=e_var, width=30).grid(row=0, column=1)
+
         def remove() -> None:
             for i, (_, _, rf) in enumerate[tuple[StringVar, StringVar, Frame]](row_widgets):
                 if rf == row_f:
                     row_widgets.pop(i)
                     row_f.destroy()
                     break
-        ttk.Button(row_f, text="✕", width=2, command=remove).grid(row=0, column=2)
+
+        ttk.Button(row_f, text="Х", width=2, command=remove).grid(row=0, column=2)
         row_widgets.append((f_var, e_var, row_f))
 
     for folder, exts in (initial_mapping or {}).items():

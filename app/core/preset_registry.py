@@ -5,6 +5,7 @@ from app.core.user_presets import (
     save_user_preset,
 )
 
+
 def get_all_presets() -> dict[str, ExtensionsMap]:
     return {**RULE_PRESETS, **load_user_presets()}
 
@@ -14,6 +15,8 @@ def is_builtin(name: str) -> bool:
 
 
 def add_user_preset(name: str, mapping: ExtensionsMap) -> None:
+    if is_builtin(name):
+        raise ValueError("Нельзя переопределить встроенную конфигурацию")
     save_user_preset(name, mapping)
 
 
