@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from app.core.services import FileOrganizerService
-
+from app.ui.tooltip import add_tooltip
 
 class MainWindow(ttk.Frame):
     def __init__(self, master: tk.Misc, organizer: FileOrganizerService, **kwargs) -> None:
@@ -39,16 +39,12 @@ class MainWindow(ttk.Frame):
 
         ttk.Label(self._content, text="Путь").grid(row=0, column=0)
         self._path_var = tk.StringVar()
-        ttk.Entry(self._content, textvariable=self._path_var).grid(
-            row=0, column=1
-        )
+        ttk.Entry(self._content, textvariable=self._path_var).grid(row=0, column=1)
         ttk.Button(self._content, text="Обзор", command=self._on_browse).grid(
             row=0, column=2
         )
 
-        ttk.Label(self._content, text="Конфигурация").grid(
-            row=1, column=0
-        )
+        ttk.Label(self._content, text="Конфигурация").grid(row=1, column=0)
         self._preset_var = tk.StringVar(value=self._organizer.preset_name)
         self._preset_combo = ttk.Combobox(
             self._content,
@@ -75,6 +71,10 @@ class MainWindow(ttk.Frame):
             variable=self._include_subfolders_var,
         )
         subfolders_cb.grid(row=1, column=0)
+        add_tooltip(
+            subfolders_cb,
+            "Если включено, файлы из вложенных папок тоже будут вытащены",
+        )
 
     def _on_browse(self) -> None:
         directory = filedialog.askdirectory()
@@ -87,8 +87,10 @@ class MainWindow(ttk.Frame):
             messagebox.showwarning("Сортировка", "Сначала укажите папку")
             return
 
-        self._organizer.set_preset(self._preset_var.get())
-        self._organizer.set_include_subfolders(self._include_subfolders_var.get())
+        preset = self._preset_var.get()
+        include_sub = self._include_subfolders_var.get()
+        self._organizer.set_preset(preset)
+        self._organizer.set_include_subfolders(include_sub)
 
         root = Path(path_str)
         try:
