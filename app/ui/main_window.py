@@ -5,6 +5,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from app.core.services import FileOrganizerService
 
+
 class MainWindow(ttk.Frame):
     def __init__(self, master: tk.Misc, organizer: FileOrganizerService, **kwargs) -> None:
         super().__init__(master, **kwargs)
@@ -13,23 +14,62 @@ class MainWindow(ttk.Frame):
 
     def _build_ui(self) -> None:
         self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
 
-        ttk.Label(self, text="Путь").grid(row=0, column=0)
+        sidebar = ttk.Frame(self)
+        sidebar.grid(row=0, column=0)
+
+        ttk.Button(sidebar, text="Главная", command=self._show_main_screen).grid(
+            row=0, column=0
+        )
+        ttk.Button(sidebar, text="Настройки", command=self._show_settings_screen).grid(
+            row=1, column=0
+        )
+
+        self._content = ttk.Frame(self)
+        self._content.grid(row=0, column=1)
+        self._content.columnconfigure(1, weight=1)
+
+        self._build_main_screen()
+
+    def _build_main_screen(self) -> None:
+        for child in self._content.winfo_children():
+            child.destroy()
+
+        ttk.Label(self._content, text="Путь").grid(row=0, column=0)
         self._path_var = tk.StringVar()
-        ttk.Entry(self, textvariable=self._path_var).grid(row=0, column=1)
-        ttk.Button(self, text="Обзор", command=self._on_browse).grid(row=0, column=2)
+        ttk.Entry(self._content, textvariable=self._path_var).grid(
+            row=0, column=1
+        )
+        ttk.Button(self._content, text="Обзор", command=self._on_browse).grid(
+            row=0, column=2
+        )
 
-        ttk.Label(self, text="Конфигурация").grid(row=1, column=0)
+        ttk.Label(self._content, text="Конфигурация").grid(
+            row=1, column=0
+        )
         self._preset_var = tk.StringVar(value=self._organizer.preset_name)
         self._preset_combo = ttk.Combobox(
-            self,
+            self._content,
             textvariable=self._preset_var,
             values=self._organizer.available_presets(),
             state="readonly",
         )
         self._preset_combo.grid(row=1, column=1)
 
-        ttk.Button(self, text="Сортировать", command=self._on_sort).grid(row=2, column=1)
+        ttk.Button(self._content, text="Сортировать", command=self._on_sort).grid(
+            row=2, column=1
+        )
+
+    def _show_main_screen(self) -> None:
+        self._build_main_screen()
+
+    def _show_settings_screen(self) -> None:
+        for child in self._content.winfo_children():
+            child.destroy()
+        ttk.Label(self._content, text="Настройки").grid(
+            row=0, column=0
+        )
 
     def _on_browse(self) -> None:
         directory = filedialog.askdirectory()
