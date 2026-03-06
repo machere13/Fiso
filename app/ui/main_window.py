@@ -30,6 +30,7 @@ class MainWindow(ttk.Frame):
         self._content.grid(row=0, column=1)
         self._content.columnconfigure(1, weight=1)
 
+        self._include_subfolders_var = tk.BooleanVar(value=False)
         self._build_main_screen()
 
     def _build_main_screen(self) -> None:
@@ -67,9 +68,13 @@ class MainWindow(ttk.Frame):
     def _show_settings_screen(self) -> None:
         for child in self._content.winfo_children():
             child.destroy()
-        ttk.Label(self._content, text="Настройки").grid(
-            row=0, column=0
+        ttk.Label(self._content, text="Настройки").grid(row=0, column=0)
+        subfolders_cb = ttk.Checkbutton(
+            self._content,
+            text="Сортировать файлы в подпапках",
+            variable=self._include_subfolders_var,
         )
+        subfolders_cb.grid(row=1, column=0)
 
     def _on_browse(self) -> None:
         directory = filedialog.askdirectory()
@@ -83,6 +88,7 @@ class MainWindow(ttk.Frame):
             return
 
         self._organizer.set_preset(self._preset_var.get())
+        self._organizer.set_include_subfolders(self._include_subfolders_var.get())
 
         root = Path(path_str)
         try:

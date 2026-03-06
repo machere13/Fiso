@@ -9,6 +9,7 @@ class FileOrganizerService(FileOrganizer):
     def __init__(self, rules_repository: RulesRepository, preset_name: str = DEFAULT_PRESET_NAME) -> None:
         self._rules_repository = rules_repository
         self._preset_name = preset_name
+        self._include_subfolders = False
 
     @property
     def preset_name(self) -> str:
@@ -23,26 +24,55 @@ class FileOrganizerService(FileOrganizer):
             raise ValueError(f"Неизвестная конфигурация правил: {name}")
         self._preset_name = name
 
+    def set_include_subfolders(self, value: bool) -> None:
+        self._include_subfolders = value
+
     def build_plan(self, root: Path) -> OrganizePlan:
         if not root.exists() or not root.is_dir():
             raise ValueError("Указанный путь должен быть существующей папкой")
 
         extensions_by_category = RULE_PRESETS[self._preset_name]
-
         items: list[OrganizePlanItem] = []
-        for path in root.iterdir():
-            if not path.is_file():
-                continue
-            category = self._detect_category(path.suffix, extensions_by_category)
-            if category is None:
-                continue
-            target_dir = root / category
-            target = target_dir / path.name
-            if target == path:
-                continue
-            items.append(OrganizePlanItem(source=path, destination=target))
+
+        if self._include_subfolders:
+            for path in root.rglob("*"):
+                if not path.is_file():
+                    continue
+                category = self._detect_category(path.suffix, extensions_by_category)
+                if category is None:
+                    continue
+                target_dir = root / category
+                target = self._unique_path(target_dir, path.name)
+                if target.resolve() == path.resolve():
+                    continue
+                items.append(OrganizePlanItem(source=path, destination=target))
+        else:
+            for path in root.iterdir():
+                if not path.is_file():
+                    continue
+                category = self._detect_category(path.suffix, extensions_by_category)
+                if category is None:
+                    continue
+                target_dir = root / category
+                target = target_dir / path.name
+                if target == path:
+                    continue
+                items.append(OrganizePlanItem(source=path, destination=target))
 
         return OrganizePlan(root=root, items=items)
+
+    def _unique_path(self, directory: Path, name: str) -> Path:
+        target = directory / name
+        if not target.exists():
+            return target
+        stem = Path(name).stem
+        suffix = Path(name).suffix
+        n = 1
+        while True:
+            target = directory / f"{stem} ({n}){suffix}"
+            if not target.exists():
+                return target
+            n += 1
 
     def apply_plan(self, plan: OrganizePlan) -> None:
         for item in plan.items:
