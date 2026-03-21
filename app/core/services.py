@@ -19,7 +19,7 @@ class FileOrganizerService(FileOrganizer):
 
     @classmethod
     def available_presets(cls) -> list[str]:
-        return list(get_all_presets().keys())
+        return list[str](get_all_presets().keys())
 
     def set_preset(self, name: str) -> None:
         if name not in get_all_presets():
