@@ -1,9 +1,9 @@
 from typing import Any
 
-import customtkinter as ctk  # type: ignore[import-untyped]
+import customtkinter as ctk  
 
 try:
-    from CTkToolTip import CTkToolTip as _CTkToolTip  # pyright: ignore[reportMissingImports]
+    from CTkToolTip import CTkToolTip as _CTkToolTip  
 
     _HAS_CTK_TOOLTIP = True
 except ImportError:

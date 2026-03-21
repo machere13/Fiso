@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import customtkinter as ctk  # type: ignore[import-untyped]
+import customtkinter as ctk  
 from tkinter import filedialog, messagebox
 
 from app.core.preset_registry import (

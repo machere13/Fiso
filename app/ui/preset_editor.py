@@ -1,6 +1,6 @@
 from typing import Any
 
-import customtkinter as ctk  # pyright: ignore[reportMissingImports]
+import customtkinter as ctk  
 from tkinter import messagebox
 
 from app.core.rules_presets import ExtensionsMap
