@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import tkinter as tk
+import customtkinter as ctk  
 
 from app.core.rules_repository import JsonRulesRepository
 from app.core.services import FileOrganizerService
@@ -8,9 +8,12 @@ from app.ui.main_window import MainWindow
 
 
 def main() -> None:
-    root = tk.Tk()
+    ctk.set_appearance_mode("System") 
+    ctk.set_default_color_theme("themes/breeze.json")
+
+    root = ctk.CTk()
     root.title("Fiso")
-    root.geometry("600x200")
+    root.geometry("640x280")
 
     rules_repo = JsonRulesRepository(path=Path("rules.json"))
     organizer = FileOrganizerService(rules_repository=rules_repo)

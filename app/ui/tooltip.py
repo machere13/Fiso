@@ -1,6 +1,32 @@
-import tkinter as tk
+from typing import Any
 
-def add_tooltip(widget: tk.Misc, text: str, delay_ms: int = 500) -> None:
+import customtkinter as ctk  
+
+try:
+    from CTkToolTip import CTkToolTip as _CTkToolTip  
+
+    _HAS_CTK_TOOLTIP = True
+except ImportError:
+    _CTkToolTip = None
+    _HAS_CTK_TOOLTIP = False
+
+
+def add_tooltip(
+    widget: Any,
+    text: str,
+    delay_ms: int = 500,
+) -> None:
+    """Добавляет подсказку при наведении на виджет. Использует CTkToolTip если доступен."""
+    if _HAS_CTK_TOOLTIP and _CTkToolTip is not None:
+        _CTkToolTip(widget, message=text, delay=delay_ms / 1000)
+    else:
+        _fallback_tooltip(widget, text, delay_ms)
+
+
+def _fallback_tooltip(widget: Any, text: str, delay_ms: int) -> None:
+    """Резервный тултип на Toplevel (если CTkToolTip не установлен)."""
+    import tkinter as tk
+
     state: dict = {"after_id": None, "window": None}
 
     def show() -> None:
@@ -13,18 +39,18 @@ def add_tooltip(widget: tk.Misc, text: str, delay_ms: int = 500) -> None:
         label = tk.Label(
             tw,
             text=text,
-            background="#fff",
-            foreground="#000",
+            background="#2b2b2b",
+            foreground="#ffffff",
             relief="solid",
         )
         label.pack()
         tw.attributes("-topmost", True)
         state["window"] = tw
 
-    def on_enter(_: tk.Event) -> None:
+    def on_enter(_: object) -> None:
         state["after_id"] = widget.after(delay_ms, show)
 
-    def on_leave(_: tk.Event) -> None:
+    def on_leave(_: object) -> None:
         if state["after_id"] is not None:
             widget.after_cancel(state["after_id"])
             state["after_id"] = None

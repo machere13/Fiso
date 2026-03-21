@@ -1,6 +1,7 @@
-import tkinter as tk
-from tkinter import StringVar, messagebox, ttk
-from tkinter.ttk import Frame
+from typing import Any
+
+import customtkinter as ctk  
+from tkinter import messagebox
 
 from app.core.rules_presets import ExtensionsMap
 
@@ -17,68 +18,69 @@ def _parse_extensions(text: str) -> set[str]:
 
 
 def edit_preset(
-    parent: tk.Misc,
+    parent: Any,
     initial_name: str = "",
     initial_mapping: ExtensionsMap | None = None,
 ) -> tuple[str, ExtensionsMap] | None:
     initial_mapping = initial_mapping or {}
     result: list[tuple[str, ExtensionsMap]] = []
 
-    dialog = tk.Toplevel(parent)
+    dialog = ctk.CTkToplevel(parent)
     dialog.title("Редактор конфигурации" if initial_name else "Новая конфигурация")
     dialog.transient(parent)
     dialog.grab_set()
 
-    main = ttk.Frame(dialog, padding=12)
-    main.grid(row=0, column=0, sticky="nsew")
-    dialog.columnconfigure(0, weight=1)
-    dialog.rowconfigure(0, weight=1)
+    main = ctk.CTkFrame(dialog, fg_color="transparent")
+    main.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
+    dialog.grid_columnconfigure(0, weight=1)
+    dialog.grid_rowconfigure(0, weight=1)
 
-    ttk.Label(main, text="Название").grid(row=0, column=0)
-    name_var = tk.StringVar(value=initial_name)
-    ttk.Entry(main, textvariable=name_var, width=40).grid(
-        row=1, column=0
+    ctk.CTkLabel(main, text="Название").grid(row=0, column=0, sticky="w", pady=(0, 4))
+    name_var = ctk.StringVar(value=initial_name)
+    ctk.CTkEntry(main, textvariable=name_var, width=350).grid(
+        row=1, column=0, sticky="ew", pady=(0, 12)
     )
 
-    ttk.Label(main, text="Папки и расширения").grid(
-        row=2, column=0
+    ctk.CTkLabel(main, text="Папки и расширения").grid(
+        row=2, column=0, sticky="w", pady=(0, 4)
     )
-    rows_frame = ttk.Frame(main)
-    rows_frame.grid(row=3, column=0)
-    main.columnconfigure(0, weight=1)
-    main.rowconfigure(3, weight=1)
-    rows_frame.columnconfigure(0, weight=1)
-    inner = ttk.Frame(rows_frame)
-    inner.grid(row=0, column=0)
-    inner.columnconfigure(0, weight=1)
+    rows_frame = ctk.CTkFrame(main, fg_color="transparent")
+    rows_frame.grid(row=3, column=0, sticky="nsew")
+    main.grid_columnconfigure(0, weight=1)
+    main.grid_rowconfigure(3, weight=1)
+    rows_frame.grid_columnconfigure(0, weight=1)
+    inner = ctk.CTkScrollableFrame(rows_frame, height=150, fg_color="transparent")
+    inner.grid(row=0, column=0, sticky="ew")
+    inner.grid_columnconfigure(1, weight=1)
 
-    row_widgets: list[tuple[tk.StringVar, tk.StringVar, ttk.Frame]] = []
+    row_widgets: list[tuple[ctk.StringVar, ctk.StringVar, ctk.CTkFrame]] = []
 
     def add_row(folder: str = "", exts: str = "") -> None:
-        row_f = ttk.Frame(inner)
+        row_f = ctk.CTkFrame(inner, fg_color="transparent")
         row_f.grid(row=len(row_widgets), column=0, sticky="ew", pady=2)
-        f_var = tk.StringVar(value=folder)
-        e_var = tk.StringVar(value=exts)
-        ttk.Entry(row_f, textvariable=f_var, width=18).grid(row=0, column=0)
-        ttk.Entry(row_f, textvariable=e_var, width=30).grid(row=0, column=1)
-
-        def remove() -> None:
-            for i, (_, _, rf) in enumerate[tuple[StringVar, StringVar, Frame]](row_widgets):
-                if rf == row_f:
-                    row_widgets.pop(i)
-                    row_f.destroy()
-                    break
-
-        ttk.Button(row_f, text="Х", width=2, command=remove).grid(row=0, column=2)
+        row_f.grid_columnconfigure(1, weight=1)
+        f_var = ctk.StringVar(value=folder)
+        e_var = ctk.StringVar(value=exts)
+        ctk.CTkEntry(row_f, textvariable=f_var, width=120).grid(row=0, column=0, padx=(0, 8))
+        ctk.CTkEntry(row_f, textvariable=e_var, width=200).grid(row=0, column=1, padx=4)
+        remove_btn = ctk.CTkButton(row_f, text="✕", width=32, command=lambda: remove_row(row_f))
+        remove_btn.grid(row=0, column=2)
         row_widgets.append((f_var, e_var, row_f))
+
+    def remove_row(row_f: ctk.CTkFrame) -> None:
+        for i, (_, _, rf) in enumerate(row_widgets):
+            if rf == row_f:
+                row_widgets.pop(i)
+                row_f.destroy()
+                break
 
     for folder, exts in (initial_mapping or {}).items():
         add_row(folder, ", ".join(sorted(exts)))
     if not row_widgets:
         add_row()
 
-    ttk.Button(rows_frame, text="+ Добавить папку", command=lambda: add_row()).grid(
-        row=1, column=0, pady=(8, 0)
+    ctk.CTkButton(rows_frame, text="+ Добавить папку", command=lambda: add_row()).grid(
+        row=1, column=0, pady=(8, 0), sticky="w"
     )
 
     def on_ok() -> None:
@@ -105,10 +107,10 @@ def edit_preset(
     def on_cancel() -> None:
         dialog.destroy()
 
-    btn_f = ttk.Frame(main)
-    btn_f.grid(row=4, column=0)
-    ttk.Button(btn_f, text="Отмена", command=on_cancel).pack(side="right")
-    ttk.Button(btn_f, text="Сохранить", command=on_ok).pack(side="right")
+    btn_f = ctk.CTkFrame(main, fg_color="transparent")
+    btn_f.grid(row=4, column=0, pady=(16, 0))
+    ctk.CTkButton(btn_f, text="Отмена", command=on_cancel, width=80).pack(side="right", padx=(0, 8))
+    ctk.CTkButton(btn_f, text="Сохранить", command=on_ok, width=80).pack(side="right")
 
     dialog.wait_window(dialog)
     return result[0] if result else None
